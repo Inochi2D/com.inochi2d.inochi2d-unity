@@ -1,0 +1,9 @@
+{
+	"name": "com.inochi2d.inochi2d-unity",
+	"version": "0.8.1",
+	"description": "Inochi2D integration for Unity",
+	"displayName": "Inochi2D for Unity",
+	"author": "Inochi2D Project <dev@inochi2d.com> https://inochi2d.com",
+	"license": "BSD-2-Clause",
+	"documentationUrl": "https://docs.inochi2d.com"
+}

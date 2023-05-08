@@ -1,0 +1,14 @@
+{
+    "name": "inochi2D.Inochi2D",
+    "references": [
+        "Inochi2D"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "noEngineReferences": false
+}
