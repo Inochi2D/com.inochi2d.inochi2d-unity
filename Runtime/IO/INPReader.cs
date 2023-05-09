@@ -6,6 +6,7 @@ using System;
 using System.Text;
 using System.Data;
 using System.Buffers.Binary;
+using Newtonsoft.Json;
 
 namespace Inochi2D.IO {
 
@@ -31,7 +32,7 @@ namespace Inochi2D.IO {
         /// Gets a Unity Texture2D from the INP Texture
         /// </summary>
         /// <returns>A Texture2D if the texture format is supported, otherwise returns null</returns>
-        public Texture2D ToTexture2D(bool premultiply=true) {
+        public Texture2D ToTexture2D(bool premultiply=true, bool pointFiltering=false) {
             Texture2D tex = null;
             if (Format == INPTextureFormat.PNG) {
                 tex = new Texture2D(2, 2);
@@ -52,6 +53,7 @@ namespace Inochi2D.IO {
             }
 
             tex.alphaIsTransparency = true;
+            tex.filterMode = pointFiltering ? FilterMode.Bilinear : FilterMode.Point;
             if (premultiply) this.Premultiply(ref tex);
 
             return tex;
@@ -102,8 +104,6 @@ namespace Inochi2D.IO {
         private void ReadSections() {
             // Get payload position
             uint payloadLength = BinaryPrimitives.ReadUInt32BigEndian(this.ReadBytes(4));
-            Debug.Log($"Payload Length = {payloadLength}");
-
             mPayload = new string(this.ReadChars((int)payloadLength));
 
             // Verifies the magic bytes for the texture header
@@ -177,8 +177,8 @@ namespace Inochi2D.IO {
         /// ReadFile has to be called first.
         /// </summary>
         /// <returns></returns>
-        public Puppet ReadPuppet() {
-            return JsonUtility.FromJson<Puppet>(PayloadJSON);
+        public InPuppet ReadPuppet() {
+            return JsonConvert.DeserializeObject<InPuppet>(PayloadJSON);
         }
 
         /// <summary>

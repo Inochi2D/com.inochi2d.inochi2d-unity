@@ -16,36 +16,20 @@ namespace Inochi2D {
         public bool PremultiplyTextures = true;
 
         public override void OnImportAsset(AssetImportContext ctx) {
-            INPReader reader = new INPReader(ctx.assetPath);
-            try {
-                reader.ReadFile();
 
-                // Create game object with puppet reference
-                var rootObject = new GameObject();
-                var puppet = rootObject.AddComponent<Puppet>();
+            // Make sure Inochi2D is initialized
+            Inochi2D.Init();
 
-                List<Texture2D> textures = new List<Texture2D>();
-                int index = 0;
-                foreach (var texture in reader.Textures) {
+            if (ctx.assetPath.EndsWith("inx")) Debug.LogWarning($"{ctx.assetPath} is an Inochi Creator project file, some features will be disabled...");
 
-                    // Add Texture
-                    var tex = texture.ToTexture2D(PremultiplyTextures);
-                    tex.name = $"Texture{index}";
-                    ctx.AddObjectToAsset(tex.name, tex, tex);
-                    textures.Add(tex);
-
-                    index++;
-                }
-                puppet.TextureSlots = textures.ToArray();
-
-                ctx.AddObjectToAsset("Puppet", rootObject, Resources.Load<Texture2D>("i2d-logo"));
-                ctx.SetMainObject(rootObject);
-
-                reader.Close();
-            } catch(Exception ex) {
-                reader.Close();
-                throw ex;
+            Puppet puppet = PuppetLoader.CreatePuppetFromPath(ctx.assetPath);
+            foreach(var tex in puppet.TextureSlots) {
+                ctx.AddObjectToAsset(tex.name, tex, tex);
             }
+
+            // Add Puppet object to asset.
+            ctx.AddObjectToAsset("Puppet", puppet.gameObject, Resources.Load<Texture2D>("i2d-logo"));
+            ctx.SetMainObject(puppet.gameObject);
         }
     }
 

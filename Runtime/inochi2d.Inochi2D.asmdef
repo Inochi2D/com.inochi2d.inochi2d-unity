@@ -1,7 +1,9 @@
 {
     "name": "Inochi2D",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Newtonsoft.Json"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

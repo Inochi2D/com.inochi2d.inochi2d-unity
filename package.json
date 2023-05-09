@@ -5,5 +5,8 @@
 	"displayName": "Inochi2D for Unity",
 	"author": "Inochi2D Project <dev@inochi2d.com> https://inochi2d.com",
 	"license": "BSD-2-Clause",
-	"documentationUrl": "https://docs.inochi2d.com"
+	"documentationUrl": "https://docs.inochi2d.com",
+	"dependencies": {
+		"com.unity.nuget.newtonsoft-json": "3.0.0"
+	}
 }
