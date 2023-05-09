@@ -90,7 +90,7 @@ namespace Inochi2D.Math {
         /// Deserialize JObject in to the transform
         /// </summary>
         /// <param name="obj">Object to deserialize</param>
-        public void Deserialize(JObject obj) {
+        public void Deserialize(JToken obj) {
             if (obj != null) {
 
                 Translation = new Vector3((float)obj["trans"][0], (float)obj["trans"][1], ((float)obj["trans"][2]));

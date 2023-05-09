@@ -26,6 +26,7 @@ namespace Inochi2D {
             foreach(var tex in puppet.TextureSlots) {
                 ctx.AddObjectToAsset(tex.name, tex, tex);
             }
+            ctx.AddObjectToAsset("Payload", puppet.JSONPayload);
 
             // Add Puppet object to asset.
             ctx.AddObjectToAsset("Puppet", puppet.gameObject, Resources.Load<Texture2D>("i2d-logo"));

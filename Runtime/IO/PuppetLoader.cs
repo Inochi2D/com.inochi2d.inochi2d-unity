@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using UnityEngine;
 
 namespace Inochi2D.IO {
@@ -37,9 +38,8 @@ namespace Inochi2D.IO {
 
                 // Create puppet and pass in payload
                 var puppet = rootObject.AddComponent<Puppet>();
-                JObject obj = JObject.Load(new JsonTextReader(new StringReader(reader.PayloadJSON)));
                 puppet.Info = metadata.Meta;
-
+                puppet.JSONPayload = new TextAsset(reader.PayloadJSON);
 
                 // Load textures and pass them in to the puppet
                 List<Texture2D> textures = new List<Texture2D>();
@@ -59,7 +59,8 @@ namespace Inochi2D.IO {
                 return puppet;
             } catch (Exception ex) {
                 reader.Close();
-                throw ex;
+                ExceptionDispatchInfo.Capture(ex).Throw();
+                throw;
             }
         }
     }

@@ -9,12 +9,12 @@ namespace Inochi2D.Nodes {
         #region Private Members
         private InPuppet mPuppet;
         private Node mParent;
-        private List<Node> mChildren;
-        private uint mUUID;
-        private float mZSort;
-        private bool mLockToRoot;
+        private List<Node> mChildren = new List<Node>();
+        private uint mUUID = 0;
+        private float mZSort = 0;
+        private bool mLockToRoot = false;
 
-        private bool mRecalculateTransform;
+        private bool mRecalculateTransform = true;
         #endregion
 
         #region Protected Members
@@ -431,20 +431,27 @@ namespace Inochi2D.Nodes {
             if (obj["name"] != null) Name = (string)obj["name"];
             if (obj["enabled"] != null) Enabled = (bool)obj["enabled"];
             if (obj["zsort"] != null) mZSort = (float)obj["zsort"];
-            if (obj["transform"] != null) LocalTransform = obj["transform"].ToObject<Math.Transform>();
             if (obj["lockToRoot"] != null) mLockToRoot = (bool)obj["lockToRoot"];
 
-            foreach(var child in obj["children"].Children()) {
-                string type = (string)child["type"];
+            if (obj["transform"] != null) {
+                LocalTransform = new Math.Transform();
+                LocalTransform.Deserialize(obj["transform"]);
+            }
 
-                if (!NodeFactoryRegistry.HasNodeType(type)) {
-                    Node n = new Node(0, this);
-                    n.Deserialize(child);
-                    this.mChildren.Add(n);
-                } else {
-                    Node n = NodeFactoryRegistry.CreateNode<Node>(type, this);
-                    n.Deserialize(child);
-                    this.mChildren.Add(n);
+            // Iterate over children if there
+            if (obj["children"] != null) {
+                foreach (var child in obj["children"].Children()) {
+                    string type = (string)child["type"];
+
+                    if (!NodeFactoryRegistry.HasNodeType(type)) {
+                        Node n = new Node(0, this);
+                        n.Deserialize(child);
+                        this.mChildren.Add(n);
+                    } else {
+                        Node n = NodeFactoryRegistry.CreateNode<Node>(type, this);
+                        n.Deserialize(child);
+                        this.mChildren.Add(n);
+                    }
                 }
             }
         }
@@ -501,7 +508,7 @@ namespace Inochi2D.Nodes {
         /// <param name="typeId">Type ID</param>
         /// <returns>Whether the factory registry can construct the type</returns>
         public static bool HasNodeType(string typeId) {
-            return mNodeFactories[typeId] is not null;
+            return mNodeFactories.ContainsKey(typeId);
         }
     }
 }

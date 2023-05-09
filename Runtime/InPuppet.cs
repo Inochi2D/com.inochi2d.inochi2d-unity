@@ -10,49 +10,28 @@ namespace Inochi2D {
     /// <summary>
     /// Inochi2D Puppet Instance
     /// </summary>
-    [JsonConverter(typeof(InPuppetConverter))]
-    public class InPuppet : UnityEngine.Object {
+    public class InPuppet {
         public Puppet Parent;
-        public PuppetMeta Info;
         public Node Root;
+
+        public Math.Transform VisualTransform;
 
         public InPuppet() { }
 
         public void Update() {
-
+            Root.BeginUpdate();
+            Root.Update();
         }
 
-        public void Init() {
+        public void Draw(Scene scene) {
+            Root.Draw(scene);
+        }
+    
+        public void Deserialize(JObject obj) {
+
+            Root = new Node(this);
+            if (obj["nodes"] != null) Root.Deserialize(obj["nodes"]);
 
         }
-
-        public void UpdateFixed(float delta) {
-
-        }
-    }
-
-    /// <summary>
-    /// Inochi2D Puppet Deserializer
-    /// </summary>
-    public class InPuppetConverter : JsonConverter<InPuppet> {
-        // UNUSED
-        public override void WriteJson(JsonWriter writer, InPuppet value, JsonSerializer serializer) => throw new NotImplementedException();
-
-        public override InPuppet ReadJson(JsonReader reader, Type objectType, InPuppet existingValue, bool hasExistingValue, JsonSerializer serializer) {
-            InPuppet puppet = new InPuppet();
-            JObject obj = JObject.Load(reader);
-
-            // Read metadata
-            if (obj["meta"] != null) {
-                puppet.Info = obj["meta"].ToObject<PuppetMeta>();
-            }
-
-            // Read Node structure
-
-            // Return resulting puppet data
-            return puppet;
-        }
-
-        public override bool CanWrite => false;
     }
 }
