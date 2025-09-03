@@ -1,12 +1,12 @@
 {
-    "name": "Inochi2D",
+    "name": "Inochi2D.Runtime",
     "rootNamespace": "",
-    "references": [
-        "Newtonsoft.Json"
+    "references": [],
+    "includePlatforms": [
+        "Editor"
     ],
-    "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

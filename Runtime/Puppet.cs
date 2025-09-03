@@ -1,72 +1,103 @@
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Inochi2D.Internal;
+using Inochi2D;
 using UnityEngine;
-using Inochi2D.Math;
-using Inochi2D.IO;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.IO;
+using Unity.Collections;
+using Unity.VisualScripting;
+using System.Runtime.InteropServices;
+using Unity.Properties;
 
 namespace Inochi2D {
 
     /// <summary>
-    /// A hook for an Inochi2D Puppet instance
+    /// A puppet
     /// </summary>
+    [Icon("Assets/Resources/i2d-logo.png")]
+    [AddComponentMenu("Inochi2D Puppet")]
     public class Puppet : MonoBehaviour {
+        private InPuppet __iHandle;
 
         /// <summary>
-        /// Scene reference
+        /// The binary data of the puppet
         /// </summary>
-        public Scene Scene;
-
-        /// <summary>
-        /// Instance of the internal puppet
-        /// </summary>
-        public InPuppet PuppetInstance;
-
-        /// <summary>
-        /// Public facing puppet information
-        /// </summary>
-        public PuppetMeta Info;
-
-        [SerializeField]
-        public Math.Transform VisualTransform;
-
-        /// <summary>
-        /// The Texture slots for this puppet
-        /// </summary>
-        [SerializeField]
-        public Texture2D[] TextureSlots;
-
         [HideInInspector]
-        public TextAsset JSONPayload;
+        public TextAsset Data;
 
-        // Start is called before the first frame update
-        void Start() {
-            Inochi2D.Init();
-            this.Deserialize();
-        }
+        /// <summary>
+        /// The name of the puppet
+        /// </summary>
+        public string Name { get { return __iHandle.Name; } }
 
-        private void Update() {
-            // Begin the scene command buffer submission
-            // We're doing this on pre-render so that the output
-            // texture can be used in the actual scene.
-            if (Scene != null && PuppetInstance != null) {
-
-                Scene.Begin();
-                    PuppetInstance.Update();
-                    PuppetInstance.Draw(Scene);
-                Scene.End();
+        /// <summary>
+        /// Whether physics are enabled.
+        /// </summary>
+        [CreateProperty, SerializeField]
+        public bool PhysicsEnabled {
+            get {
+                return __iHandle.PhysicsEnabled;
+            }
+            set {
+                __iHandle.PhysicsEnabled = value;
             }
         }
 
-        void Deserialize() {
-            if (JSONPayload != null) {
-                PuppetInstance = new InPuppet();
-                PuppetInstance.Deserialize(JObject.Load(new JsonTextReader(new StringReader(JSONPayload.text))));
-            } else {
-                Debug.LogError("Malformed Puppet instance, did you use PuppetLoader or the Inspector?");
+        /// <summary>
+        /// The pixel-to-meter unit mapping for the physics system.
+        /// </summary>
+        [CreateProperty]
+        public float PixelsPerMeter {
+            get {
+                return __iHandle.PixelsPerMeter;
+            }
+            set {
+                __iHandle.PixelsPerMeter = value;
             }
         }
+
+        /// <summary>
+        /// The gravity constant for the puppet.
+        /// </summary>
+        [CreateProperty] 
+        public float Gravity {
+            get {
+                return __iHandle.Gravity;
+            }
+            set {
+                __iHandle.Gravity = value;
+            }
+        }
+
+        /// <summary>
+        /// The textures loaded for the puppet.
+        /// </summary>
+        [CreateProperty]
+        public NativeSlice<InTexture> Textures { get { return __iHandle.Textures; } }
+
+        /// <summary>
+        /// The puppet's parameters.
+        /// </summary>
+        [CreateProperty]
+        public NativeSlice<InParameter> Parameters { get { return __iHandle.Parameters; } }
+
+        public void Awake() {
+            if (Data != null) {
+                __iHandle = InPuppet.LoadFromMemory(Data.GetData<byte>());
+            }
+        }
+
+        public void OnDestroy() {
+            if (!__iHandle.IsNull)
+                __iHandle.Free();
+        }
+
+        public void Update() {
+            if (!__iHandle.IsNull)
+                __iHandle.Update(Time.deltaTime);
+        }
+
     }
 }

@@ -2,9 +2,14 @@
     "name": "Inochi2D.Editor",
     "rootNamespace": "",
     "references": [
-        "Inochi2D"
+        "Inochi2D.Runtime"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor",
+        "LinuxStandalone64",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
