@@ -19,8 +19,8 @@ namespace Inochi2D.Editor {
             data.name = Path.GetFileName(ctx.assetPath);
             ctx.AddObjectToAsset("Data", data);
 
-            GameObject obj = new GameObject("Puppet", typeof(Puppet));
-            Puppet p = obj.GetComponent<Puppet>();
+            GameObject obj = new GameObject("Puppet");
+            Puppet p = obj.AddComponent<Puppet>();
             p.Data = data;
 
             ctx.AddObjectToAsset("Puppet", obj, icon);

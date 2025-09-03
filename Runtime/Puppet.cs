@@ -16,7 +16,6 @@ namespace Inochi2D {
     /// <summary>
     /// A puppet
     /// </summary>
-    [Icon("Assets/Resources/i2d-logo.png")]
     [AddComponentMenu("Inochi2D Puppet")]
     public class Puppet : MonoBehaviour {
         private InPuppet __iHandle;
@@ -35,7 +34,6 @@ namespace Inochi2D {
         /// <summary>
         /// Whether physics are enabled.
         /// </summary>
-        [CreateProperty, SerializeField]
         public bool PhysicsEnabled {
             get {
                 return __iHandle.PhysicsEnabled;
@@ -48,7 +46,6 @@ namespace Inochi2D {
         /// <summary>
         /// The pixel-to-meter unit mapping for the physics system.
         /// </summary>
-        [CreateProperty]
         public float PixelsPerMeter {
             get {
                 return __iHandle.PixelsPerMeter;
@@ -61,7 +58,6 @@ namespace Inochi2D {
         /// <summary>
         /// The gravity constant for the puppet.
         /// </summary>
-        [CreateProperty] 
         public float Gravity {
             get {
                 return __iHandle.Gravity;
