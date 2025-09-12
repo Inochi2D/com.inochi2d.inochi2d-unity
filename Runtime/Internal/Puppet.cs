@@ -45,6 +45,15 @@ namespace Inochi2D.Internal {
         }
 
         /// <summary>
+        /// The draw list for the puppet
+        /// </summary>
+        public InDrawList DrawList {
+            get {
+                return in_puppet_get_drawlist(ptr);
+            }
+        }
+
+        /// <summary>
         /// The name of the puppet
         /// </summary>
         public string Name { get { return Marshal.PtrToStringUTF8(in_puppet_get_name(ptr)); } }
@@ -124,9 +133,6 @@ namespace Inochi2D.Internal {
         /// Frees the puppet.
         /// </summary>
         public void Free() {
-            foreach (var texture in this.Textures) {
-                texture.Free();
-            }
             in_puppet_free(ptr);
             ptr = null;
         }
@@ -179,6 +185,9 @@ namespace Inochi2D.Internal {
 
         [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
         private static unsafe extern void in_puppet_set_gravity(void* ptr, float value);
+
+        [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
+        private static unsafe extern InDrawList in_puppet_get_drawlist(void* ptr);
         #endregion
 
     }

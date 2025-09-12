@@ -18,7 +18,7 @@ namespace Inochi2D {
     /// </summary>
     [AddComponentMenu("Inochi2D Puppet")]
     public class Puppet : MonoBehaviour {
-        private InPuppet __iHandle;
+        private InPuppet handle;
 
         /// <summary>
         /// The binary data of the puppet
@@ -29,17 +29,22 @@ namespace Inochi2D {
         /// <summary>
         /// The name of the puppet
         /// </summary>
-        public string Name { get { return __iHandle.Name; } }
+        public string Name { get { return handle.Name; } }
+
+        /// <summary>
+        /// The renderer in charge of this puppet.
+        /// </summary>
+        public PuppetRenderer Renderer;
 
         /// <summary>
         /// Whether physics are enabled.
         /// </summary>
         public bool PhysicsEnabled {
             get {
-                return __iHandle.PhysicsEnabled;
+                return handle.PhysicsEnabled;
             }
             set {
-                __iHandle.PhysicsEnabled = value;
+                handle.PhysicsEnabled = value;
             }
         }
 
@@ -48,10 +53,10 @@ namespace Inochi2D {
         /// </summary>
         public float PixelsPerMeter {
             get {
-                return __iHandle.PixelsPerMeter;
+                return handle.PixelsPerMeter;
             }
             set {
-                __iHandle.PixelsPerMeter = value;
+                handle.PixelsPerMeter = value;
             }
         }
 
@@ -60,10 +65,10 @@ namespace Inochi2D {
         /// </summary>
         public float Gravity {
             get {
-                return __iHandle.Gravity;
+                return handle.Gravity;
             }
             set {
-                __iHandle.Gravity = value;
+                handle.Gravity = value;
             }
         }
 
@@ -71,29 +76,34 @@ namespace Inochi2D {
         /// The textures loaded for the puppet.
         /// </summary>
         [CreateProperty]
-        public NativeSlice<InTexture> Textures { get { return __iHandle.Textures; } }
+        public NativeSlice<InTexture> Textures { get { return handle.Textures; } }
 
         /// <summary>
         /// The puppet's parameters.
         /// </summary>
         [CreateProperty]
-        public NativeSlice<InParameter> Parameters { get { return __iHandle.Parameters; } }
+        public NativeSlice<InParameter> Parameters { get { return handle.Parameters; } }
 
         public void Awake() {
+            Renderer.Awake();
             if (Data != null) {
-                __iHandle = InPuppet.LoadFromMemory(Data.GetData<byte>());
+                handle = InPuppet.LoadFromMemory(Data.GetData<byte>());
+                Renderer.Setup(handle);
             }
         }
 
         public void OnDestroy() {
-            if (!__iHandle.IsNull)
-                __iHandle.Free();
+            if (!handle.IsNull)
+                handle.Free();
+
+            if (Renderer != null) {
+                Renderer.Dispose();
+                Renderer = null;
+            }
         }
 
         public void Update() {
-            if (!__iHandle.IsNull)
-                __iHandle.Update(Time.deltaTime);
+            Renderer?.Draw();
         }
-
     }
 }

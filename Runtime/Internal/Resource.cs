@@ -17,33 +17,6 @@ namespace Inochi2D.Internal {
     public unsafe struct InTexture {
         private void* ptr;
 
-        private void finalize() {
-            if (in_resource_get_id(ptr) == null) {
-                in_texture_flip_vertically(ptr);
-
-                NativeArray<byte> pixels = Pixels;
-                Texture2D result = null;
-                switch (Channels) {
-                    case 1:
-                        result = new Texture2D((int)Width, (int)Height, TextureFormat.Alpha8, true);
-                        break;
-
-                    case 4:
-                        result = new Texture2D((int)Width, (int)Height, TextureFormat.RGBA32, true);
-                        break;
-                }
-
-                // Set data for texture.
-                if (pixels.IsCreated) {
-                    result.SetPixelData<byte>(pixels, 0, 0);
-                    result.Apply(updateMipmaps: true);
-                }
-
-                GCHandle handle = GCHandle.Alloc(result);
-                in_resource_set_id(ptr, GCHandle.ToIntPtr(handle).ToPointer());
-            }
-        }
-
         /// <summary>
         /// Size of the data in bytes.
         /// </summary>
@@ -65,17 +38,24 @@ namespace Inochi2D.Internal {
         public uint Channels { get { return in_texture_get_channels(ptr); } }
 
         /// <summary>
-        /// Unity Texture that belongs to this texture.
+        /// Channels in the texture.
         /// </summary>
-        public Texture2D Texture {
-            get {
-                if (in_resource_get_id(ptr) == null)
-                    this.finalize();
-                
-                GCHandle handle = GCHandle.FromIntPtr(new IntPtr(in_resource_get_id(ptr)));
-                return handle.Target as Texture2D;
+        public IntPtr Ptr { get => new IntPtr(ptr); }
+
+        /// <summary>
+        /// ID of the texture
+        /// </summary>
+        public int ID {
+            get => (int)in_resource_get_id(ptr);
+            set {
+                in_resource_set_id(ptr, (void*)value);
             }
         }
+
+        /// <summary>
+        /// Whether the texture is null
+        /// </summary>
+        public readonly bool IsNull => ptr == null;
 
         /// <summary>
         /// Gets a span over the pixels of the texture.
@@ -87,15 +67,52 @@ namespace Inochi2D.Internal {
         }
 
         /// <summary>
-        /// Frees the texture's ID resources.
+        /// Pre-multiplies the texture.
         /// </summary>
-        public void Free() {
-            if (in_resource_get_id(ptr) != null) {
-                GCHandle handle = GCHandle.FromIntPtr(new IntPtr(in_resource_get_id(ptr)));
-                handle.Free();
+        public void Premultiply() {
+            in_texture_premultiply(ptr);
+        }
 
-                in_resource_set_id(ptr, null);
+        /// <summary>
+        /// Pre-multiplies the texture.
+        /// </summary>
+        public void Unpremultiply() {
+            in_texture_unpremultiply(ptr);
+        }
+
+        /// <summary>
+        /// Pads the texture with a border.
+        /// </summary>
+        public void Pad(uint thickness) {
+            in_texture_pad(ptr, thickness);
+        }
+
+        /// <summary>
+        /// Creates a Texture2D from a InTexture
+        /// </summary>
+        /// <returns>InTexture</returns>
+        public Texture2D ToTexture2D() {
+            NativeArray<byte> pixels = Pixels;
+            Texture2D result = null;
+            switch (Channels) {
+                case 1:
+                    result = new Texture2D((int)Width, (int)Height, TextureFormat.Alpha8, true);
+                    break;
+
+                case 4:
+                    result = new Texture2D((int)Width, (int)Height, TextureFormat.RGBA32, true, true);
+                    break;
             }
+
+            // Set data for texture.
+            if (pixels.IsCreated) {
+                result.SetPixelData<byte>(pixels, 0, 0);
+                result.wrapMode = TextureWrapMode.Clamp;
+                result.filterMode = FilterMode.Bilinear;
+                result.alphaIsTransparency = true;
+                result.Apply(updateMipmaps: true);
+            }
+            return result;
         }
 
         #region C FFI
@@ -119,6 +136,15 @@ namespace Inochi2D.Internal {
 
         [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
         private static extern void in_texture_flip_vertically(void* obj);
+
+        [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void in_texture_premultiply(void* obj);
+
+        [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void in_texture_unpremultiply(void* obj);
+
+        [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
+        private static extern void in_texture_pad(void* obj, uint thickness);
 
         [DllImport("inochi2d", CallingConvention = CallingConvention.Cdecl)]
         private static unsafe extern void* in_texture_get_pixels(void* obj);

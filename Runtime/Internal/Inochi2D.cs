@@ -49,7 +49,25 @@ namespace Inochi2D.Internal {
         /// <param name="count">The count of elements</param>
         /// <returns>The type converted to a slice</returns>
         public static unsafe NativeSlice<T> SliceFromOwnedMemory<T>(void* ptr, uint count) where T : struct {
-            var _data = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<T>(ptr, Marshal.SizeOf<UIntPtr>(), (int)count);
+            var _data = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<T>(ptr, Marshal.SizeOf<T>(), (int)count);
+#if ENABLE_UNITY_COLLECTIONS_CHECKS
+            NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref _data, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
+#endif
+
+            return _data;
+        }
+
+        /// <summary>
+        /// Helper which converts an Inochi2D pointer to a
+        /// NativeSlice for better performance.
+        /// </summary>
+        /// <typeparam name="T">The type of the basic Inochi2D Type</typeparam>
+        /// <param name="ptr">Pointer to the array (inochi2d_xyz_t**)</param>
+        /// <param name="count">The count of elements</param>
+        /// <param name="stride">Stride between elements</param>
+        /// <returns>The type converted to a slice</returns>
+        public static unsafe NativeSlice<T> SliceFromOwnedMemory<T>(void* ptr, uint count, uint stride) where T : struct {
+            var _data = NativeSliceUnsafeUtility.ConvertExistingDataToNativeSlice<T>(ptr, (int)stride, (int)count);
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             NativeSliceUnsafeUtility.SetAtomicSafetyHandle(ref _data, AtomicSafetyHandle.GetTempUnsafePtrSliceHandle());
 #endif

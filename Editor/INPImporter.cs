@@ -23,6 +23,8 @@ namespace Inochi2D.Editor {
             Puppet p = obj.AddComponent<Puppet>();
             p.Data = data;
 
+            p.Renderer = new PuppetRenderer();
+
             ctx.AddObjectToAsset("Puppet", obj, icon);
             ctx.SetMainObject(obj);
         }
